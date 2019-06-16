@@ -132,7 +132,7 @@ func TestCaseSensitiveHeaderPropagation(t *testing.T) {
 
 }
 
-func TestSingleHeaderPropagation(t *testing.T) {
+func TestHeaderPropagation(t *testing.T) {
 	var (
 		op                 = "test"
 		spanParentIDBase64 = int64(4884)
@@ -178,6 +178,8 @@ func TestSingleHeaderPropagation(t *testing.T) {
 		s := recorder.GetQueuedSpans()[0]
 		assert.Equal(t, child.BaggageItem("foo"), "baz")
 		assert.Equal(t, []string{fmt.Sprintf("%x", s.SpanID)}, http.Header(test.carrier.(opentracing.HTTPHeadersCarrier))["X-Instana-S"])
+		assert.Equal(t, spanParentIDBase64, *s.ParentID)
+		assert.Equal(t, []string{fmt.Sprintf("%x", *s.ParentID)}, http.Header(test.carrier.(opentracing.HTTPHeadersCarrier))["X-Instana-Parentspanid"])
 	}
 
 	for _, s := range recorder.GetQueuedSpans() {
